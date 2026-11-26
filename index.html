@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍜 Hungarian Cabbage & Noodles — Interactive Poster</title>
+<style>
+  :root{
+    --bg:#0d1b12; --bg2:#12241700;
+    --card:#16281c; --card2:#1d3524;
+    --green:#7dd87d; --green2:#4caf50;
+    --butter:#ffd97a; --pepper:#ff8a5c;
+    --text:#eaf5ea; --muted:#9dbfa4;
+    --radius:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:radial-gradient(1200px 800px at 80% -10%,#1d3a25 0%,var(--bg) 55%),var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--green);color:#06210c}
+
+  /* ---------- floating food particles ---------- */
+  .particle{position:fixed;bottom:-60px;font-size:26px;opacity:.18;z-index:0;
+    animation:floatUp linear infinite;pointer-events:none}
+  @keyframes floatUp{
+    0%{transform:translateY(0) rotate(0deg)}
+    100%{transform:translateY(-115vh) rotate(340deg)}
+  }
+
+  /* ---------- HERO ---------- */
+  header{
+    min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;position:relative;z-index:1;padding:24px;
+  }
+  .badge{
+    display:inline-block;padding:8px 18px;border:1px solid var(--green);border-radius:99px;
+    color:var(--green);letter-spacing:3px;font-size:13px;margin-bottom:26px;
+    animation:pulse 2.4s ease-in-out infinite;background:#7dd87d14;
+  }
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #7dd87d55}50%{box-shadow:0 0 0 12px #7dd87d00}}
+  h1.title{
+    font-size:clamp(38px,7vw,84px);font-weight:900;line-height:1.05;
+    background:linear-gradient(92deg,#c9f7c9,var(--green) 40%,var(--butter) 75%,var(--pepper));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 6px 24px #4caf5040);
+  }
+  .subtitle{margin-top:18px;color:var(--muted);font-size:clamp(15px,2.2vw,20px);max-width:620px}
+  .subtitle b{color:var(--butter)}
+  .scroll-btn{
+    margin-top:48px;padding:16px 42px;font-size:17px;font-weight:700;color:#06210c;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--green),#b9f6b9);border-radius:99px;
+    box-shadow:0 10px 30px #4caf5055;transition:.25s;
+    animation:bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+  .scroll-btn:hover{transform:scale(1.07)}
+  .hero-emoji{font-size:clamp(50px,8vw,90px);margin-bottom:10px;animation:wiggle 3s ease-in-out infinite;display:inline-block}
+  @keyframes wiggle{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+  /* ---------- SECTIONS ---------- */
+  section{max-width:1100px;margin:0 auto;padding:90px 22px;position:relative;z-index:1}
+  .sec-head{text-align:center;margin-bottom:54px}
+  .sec-head .num{
+    display:inline-grid;place-items:center;width:46px;height:46px;border-radius:14px;
+    background:linear-gradient(135deg,var(--green),var(--green2));color:#06210c;font-weight:900;font-size:20px;
+    transform:rotate(-8deg);margin-bottom:14px;box-shadow:0 8px 20px #4caf5044;
+  }
+  .sec-head h2{font-size:clamp(28px,4.5vw,44px);font-weight:900}
+  .sec-head p{color:var(--muted);margin-top:8px;font-size:15px}
+  .reveal{opacity:0;transform:translateY(45px);transition:opacity .8s ease,transform .8s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- VERB FLIP CARDS ---------- */
+  .verbs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px}
+  .flip{perspective:900px;height:200px;cursor:pointer}
+  .flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.7,.3,1.2)}
+  .flip.flipped .flip-inner{transform:rotateY(180deg)}
+  .face{
+    position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:16px;text-align:center;
+  }
+  .face.front{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid #ffffff14;box-shadow:0 12px 30px #00000050}
+  .face.front .emoji{font-size:46px;transition:transform .3s}
+  .flip:hover .face.front .emoji{transform:scale(1.25) rotate(-8deg)}
+  .face.front .verb{font-size:26px;font-weight:900;color:var(--green);letter-spacing:1px}
+  .face.front .hint{font-size:11px;color:var(--muted)}
+  .face.back{
+    background:linear-gradient(160deg,#2b4a33,#1a3021);border:1px solid var(--green);
+    transform:rotateY(180deg);
+  }
+  .face.back .fa{font-size:22px;font-weight:800;color:var(--butter)}
+  .face.back .ex{font-size:13px;color:var(--text);line-height:1.5}
+  .face.back .ex b{color:var(--green)}
+  .speak{
+    position:absolute;bottom:10px;right:10px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+    background:#7dd87d22;color:var(--green);font-size:15px;transition:.2s;
+  }
+  .speak:hover{background:var(--green);color:#06210c;transform:scale(1.15)}
+
+  /* ---------- READING / RECIPE ---------- */
+  .recipe-wrap{display:grid;grid-template-columns:1fr 1.6fr;gap:26px}
+  @media(max-width:860px){.recipe-wrap{grid-template-columns:1fr}}
+  .panel{
+    background:linear-gradient(165deg,var(--card2),var(--card));
+    border:1px solid #ffffff12;border-radius:var(--radius);padding:28px;
+    box-shadow:0 16px 40px #00000055;
+  }
+  .panel h3{color:var(--butter);font-size:20px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .ing{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;cursor:pointer;transition:.2s;user-select:none}
+  .ing:hover{background:#ffffff0a}
+  .ing .box{
+    width:24px;height:24px;min-width:24px;border-radius:8px;border:2px solid var(--muted);
+    display:grid;place-items:center;font-size:14px;color:transparent;transition:.25s;
+  }
+  .ing.done .box{background:var(--green);border-color:var(--green);color:#06210c}
+  .ing.done .name{text-decoration:line-through;color:var(--muted)}
+  .ing .qty{margin-inline-start:auto;color:var(--green);font-weight:700;font-size:13px;white-space:nowrap}
+
+  /* stepper */
+  .stepper{display:flex;flex-direction:column;gap:18px}
+  .progress{height:10px;border-radius:99px;background:#ffffff12;overflow:hidden}
+  .progress i{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--green2),var(--butter));transition:width .5s ease}
+  .step-card{
+    min-height:190px;border-radius:18px;padding:26px;background:#0f1e14;border:1px solid #ffffff10;
+    display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative;overflow:hidden;
+  }
+  .step-card::before{
+    content:attr(data-num);position:absolute;right:-10px;bottom:-38px;font-size:130px;font-weight:900;
+    color:#7dd87d0d;font-family:Georgia,serif;
+  }
+  .step-card.pop{animation:pop .45s ease}
+  @keyframes pop{0%{transform:scale(.94);opacity:.4}100%{transform:scale(1);opacity:1}}
+  .step-card .stxt{font-size:clamp(17px,2.4vw,22px);line-height:1.7}
+  .step-card .stxt b{color:var(--green);text-transform:uppercase;letter-spacing:1px}
+  .step-card .stime{font-size:12px;color:var(--muted)}
+  .step-card .stime b{color:var(--pepper)}
+  .nav-btns{display:flex;gap:12px}
+  .nbtn{
+    flex:1;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .nbtn.prev{background:#ffffff10;color:var(--text)}
+  .nbtn.prev:hover{background:#ffffff1e}
+  .nbtn.next{background:linear-gradient(135deg,var(--green),#b9f6b9);color:#06210c}
+  .nbtn.next:hover{transform:translateY(-2px);box-shadow:0 10px 22px #4caf5044}
+  .nbtn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+  .congrats{display:none;text-align:center;padding:20px}
+  .congrats .big{font-size:52px;animation:wiggle 1.5s ease-in-out infinite}
+  .congrats h4{color:var(--butter);font-size:22px;margin:10px 0 6px}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-q{background:#0f1e14;border:1px solid #ffffff10;border-radius:18px;padding:22px;margin-bottom:16px}
+  .quiz-q p{font-size:17px;margin-bottom:14px}
+  .quiz-q p b{color:var(--butter)}
+  .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .opt{
+    padding:12px;border-radius:12px;border:1px solid #ffffff18;background:#ffffff08;color:var(--text);
+    cursor:pointer;font-size:14px;transition:.2s;
+  }
+  .opt:hover{border-color:var(--green);transform:translateY(-2px)}
+  .opt.correct{background:#2e7d3244;border-color:var(--green);color:#c9f7c9}
+  .opt.wrong{background:#c6282833;border-color:#ef5350;color:#ffcdd2}
+  #score{font-size:18px;font-weight:800;color:var(--green);text-align:center;margin-top:10px;min-height:26px}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;border-top:1px solid #ffffff10}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header>
+  <div><span class="hero-emoji">🥬</span><span class="hero-emoji" style="animation-delay:.4s">🧈</span><span class="hero-emoji" style="animation-delay:.8s">🍜</span></div>
+  <span class="badge">⭐ READING • RECIPE • 3 INGREDIENTS</span>
+  <h1 class="title">Hungarian Cabbage<br>&amp; Noodles</h1>
+  <p class="subtitle">یک دست‌پخت سادهٔ مجاری با فقط <b>سه مادهٔ اصلی</b>! اول افعال آشپزی رو یاد بگیر، بعد قدم‌به‌قدم آشپزی کن 🍳</p>
+  <button class="scroll-btn" onclick="document.getElementById('verbs').scrollIntoView()">Let's Cook! 👇</button>
+</header>
+
+<!-- VERBS -->
+<section id="verbs">
+  <div class="sec-head reveal">
+    <span class="num">1</span>
+    <h2>🍳 Cooking Verbs</h2>
+    <p>روی هر کارت کلیک کن تا معنی و مثالش باز بشه 🔊</p>
+  </div>
+  <div class="verbs-grid" id="verbsGrid"></div>
+</section>
+
+<!-- READING -->
+<section id="reading">
+  <div class="sec-head reveal">
+    <span class="num">2</span>
+    <h2>📖 Reading: The Recipe</h2>
+    <p>مواد رو تیک بزن و با دکمه‌ها قدم‌به‌قدم جلو برو</p>
+  </div>
+  <div class="recipe-wrap reveal">
+    <div class="panel">
+      <h3>🧺 Ingredients</h3>
+      <div class="ing" onclick="this.classList.toggle('done')"><span class="box">✔</span><span class="name">1 large head of green cabbage</span><span class="qty">کلم سبز</span></div>
+      <div class="ing" onclick="this.classList.toggle('done')"><span class="box">✔</span><span class="name">½ cup unsalted butter</span><span class="qty">کره</span></div>
+      <div class="ing" onclick="this.classList.toggle('done')"><span class="box">✔</span><span class="name">11 oz (700 g) egg noodles</span><span class="qty">رشته</span></div>
+      <p style="margin-top:16px;font-size:12px;color:var(--muted)">💡 فقط همین سه تا! برای ۴ نفر کافیه.</p>
+    </div>
+    <div class="panel stepper">
+      <h3>👨‍🍳 Step by Step</h3>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="step-card" id="stepCard" data-num="1">
+        <div class="stxt" id="stepTxt"></div>
+        <div class="stime" id="stepTime"></div>
+      </div>
+      <div class="nav-btns">
+        <button class="nbtn prev" id="prevBtn" onclick="moveStep(-1)">⬅ Prev</button>
+        <button class="nbtn next" id="nextBtn" onclick="moveStep(1)">Next ➡</button>
+      </div>
+      <div class="congrats" id="congrats">
+        <div class="big">🎉</div>
+        <h4>آفرین! دستور کامل شد</h4>
+        <p style="color:var(--muted);font-size:14px">حالا وقتشه کوییز آخر رو امتحان کنی 👇</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="sec-head reveal">
+    <span class="num">3</span>
+    <h2>🎯 Quick Quiz</h2>
+    <p>معنی هر فعل آشپزی رو پیدا کن</p>
+  </div>
+  <div id="quizBox" class="reveal"></div>
+  <div id="score"></div>
+</section>
+
+<footer>Made with ❤️ for English learners • Hungarian Cabbage &amp; Noodles 🍜</footer>
+
+<script>
+/* ---------- floating particles ---------- */
+const foods=['🥬','🧈','🍜','🧂','🫙','🍳','🌿','🥣'];
+for(let i=0;i<16;i++){
+  const s=document.createElement('span');s.className='particle';
+  s.textContent=foods[i%foods.length];
+  s.style.left=Math.random()*100+'vw';
+  s.style.animationDuration=(12+Math.random()*14)+'s';
+  s.style.animationDelay=(-Math.random()*20)+'s';
+  s.style.fontSize=(18+Math.random()*22)+'px';
+  document.body.appendChild(s);
+}
+
+/* ---------- verb cards ---------- */
+const verbs=[
+  {en:'cut',    fa:'بُریدن / خُرد کردن', emoji:'🔪', ex:'<b>Cut</b> the cabbage into small slices.'},
+  {en:'add',    fa:'اضافه کردن',        emoji:'➕', ex:'<b>Add</b> salt to the bowl.'},
+  {en:'put',    fa:'گذاشتن / قرار دادن', emoji:'📥', ex:'<b>Put</b> the cabbage into the refrigerator.'},
+  {en:'drain',  fa:'آبکش کردن',          emoji:'💧', ex:'<b>Drain</b> the cabbage the next day.'},
+  {en:'melt',   fa:'آب کردن (ذوب)',      emoji:'🧈', ex:'<b>Melt</b> the butter in a large pan.'},
+  {en:'sauté',  fa:'تفت دادن',           emoji:'🔥', ex:'<b>Sauté</b> the cabbage until soft.'},
+  {en:'mix',    fa:'مخلوط کردن',         emoji:'🥣', ex:'<b>Mix</b> the noodles with the cabbage.'},
+];
+const grid=document.getElementById('verbsGrid');
+verbs.forEach(v=>{
+  const d=document.createElement('div');d.className='flip reveal';
+  d.innerHTML=`<div class="flip-inner">
+    <div class="face front"><span class="emoji">${v.emoji}</span><span class="verb">${v.en}</span><span class="hint">click to flip 👆</span></div>
+    <div class="face back"><span class="fa">${v.fa}</span><span class="ex">${v.ex}</span>
+      <button class="speak" onclick="event.stopPropagation();speak('${v.en}')">🔊</button></div>
+  </div>`;
+  d.onclick=()=>d.classList.toggle('flipped');
+  grid.appendChild(d);
+});
+function speak(t){
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.85;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+
+/* ---------- recipe steps ---------- */
+const steps=[
+  {t:'<b>Cut</b> the cabbage into small slices.',                 time:'⏱ ۵ دقیقه'},
+  {t:'<b>Put</b> the cabbage into a large bowl and <b>add</b> salt.', time:'⏱ ۲ دقیقه'},
+  {t:'<b>Put</b> the cabbage into the refrigerator overnight. 🌙', time:'⏱ یک شب کامل'},
+  {t:'The next day, <b>drain</b> the cabbage. 💧',                time:'⏱ ۵ دقیقه'},
+  {t:'<b>Melt</b> the butter in a large pan. 🧈',                 time:'⏱ ۳ دقیقه'},
+  {t:'<b>Sauté</b> the cabbage until it is light brown and very soft.', time:'⏱ <b>۳۰ تا ۴۰ دقیقه</b> — صبور باش!'},
+  {t:'<b>Cook</b> the noodles and <b>drain</b> them. <b>Mix</b> them with the cabbage. <b>Add</b> lots of black pepper! 🌶', time:'⏱ ۱۰ دقیقه • نوش جان! 🍽'},
+];
+let cur=0;
+function renderStep(){
+  const c=document.getElementById('stepCard');
+  c.dataset.num=cur+1;
+  c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');
+  document.getElementById('stepTxt').innerHTML=steps[cur].t;
+  document.getElementById('stepTime').textContent=steps[cur].time;
+  document.getElementById('bar').style.width=((cur+1)/steps.length*100)+'%';
+  document.getElementById('prevBtn').disabled=(cur===0);
+  const nb=document.getElementById('nextBtn');
+  nb.textContent=(cur===steps.length-1)?'✅ Finish!':'Next ➡';
+  document.getElementById('congrats').style.display='none';
+}
+function moveStep(d){
+  if(d>0 && cur===steps.length-1){
+    document.getElementById('congrats').style.display='block';
+    document.getElementById('stepCard').style.display='none';
+    document.querySelector('.nav-btns').style.display='none';
+    document.getElementById('bar').style.width='100%';
+    return;
+  }
+  cur=Math.min(Math.max(cur+d,0),steps.length-1);
+  document.getElementById('stepCard').style.display='flex';
+  document.querySelector('.nav-btns').style.display='flex';
+  renderStep();
+}
+renderStep();
+
+/* ---------- quiz ---------- */
+const quizData=[
+  {q:'«تفت دادن» کدام است؟', opts:['drain','sauté','melt'], a:1},
+  {q:'«آبکش کردن» کدام است؟', opts:['drain','cut','put'], a:0},
+  {q:'«ذوب کردن کره» کدام است؟', opts:['add','mix','melt'], a:2},
+  {q:'«مخلوط کردن» کدام است؟', opts:['mix','add','cut'], a:0},
+  {q:'In step 6, we ___ the cabbage for 30–40 minutes.', opts:['drain','sauté','put'], a:1},
+];
+let answered=0, correct=0;
+const qb=document.getElementById('quizBox');
+quizData.forEach((q,qi)=>{
+  const box=document.createElement('div');box.className='quiz-q reveal';
+  box.innerHTML=`<p><b>Q${qi+1}.</b> ${q.q}</p><div class="opts">${
+    q.opts.map((o,oi)=>`<button class="opt" onclick="answer(this,${qi},${oi})">${o}</button>`).join('')
+  }</div>`;
+  qb.appendChild(box);
+});
+function answer(btn,qi,oi){
+  const q=quizData[qi];
+  const all=btn.parentElement.querySelectorAll('.opt');
+  if(all[0].disabled) return;
+  all.forEach(b=>b.disabled=true);
+  if(oi===q.a){btn.classList.add('correct');correct++;}
+  else{btn.classList.add('wrong');all[q.a].classList.add('correct');}
+  answered++;
+  if(answered===quizData.length){
+    const s=document.getElementById('score');
+    s.textContent=`🏆 نتیجه: ${correct} از ${quizData.length} `+(correct===quizData.length?'— عالی بود! 🌟':'— خوب بود، دوباره تلاش کن!');
+  }
+}
+
+/* ---------- scroll reveal ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
